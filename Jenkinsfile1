@@ -57,21 +57,22 @@ pipeline {
                 sh 'trivy fs . > trivyfs.txt'
             }
         }
-        stage('Docker Build & Push') {
-            steps {
-                script {
-                    withDockerRegistry(credentialsId: 'docker', toolName: 'docker') {
-                        sh ''' 
-                        echo "Building Docker image..."
-                        docker build --no-cache -t revanmudnal2054/bms:latest -f bookmyshow-app/Dockerfile bookmyshow-app
+       stage('Docker Build & Push') {
+    steps {
+        script {
+            // Remove toolName: 'docker' from this line
+            withDockerRegistry(credentialsId: 'docker') {
+                sh ''' 
+                echo "Building Docker image..."
+                docker build --no-cache -t revanmudnal2054/bms:latest -f bookmyshow-app/Dockerfile bookmyshow-app
 
-                        echo "Pushing Docker image to registry..."
-                        docker push revanmudnal2054/bms:latest
-                        '''
-                    }
-                }
+                echo "Pushing Docker image to registry..."
+                docker push revanmudnal2054/bms:latest
+                '''
             }
         }
+    }
+}
         stage('Deploy to Container') {
             steps {
                 sh ''' 
