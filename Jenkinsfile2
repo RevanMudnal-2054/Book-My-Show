@@ -72,22 +72,26 @@ pipeline {
         }
 
        stage('Docker Build & Push') {
-    steps {
+        steps {
         script {
+            // Define image name for cleaner code
+            def dockerImage = "revanmudnal2054/bms:${env.BUILD_NUMBER}"
+            def latestImage = "revanmudnal2054/bms:latest"
+
             // Removed toolName to use the system's modern Docker client
             withDockerRegistry(credentialsId: 'docker') {
                 sh """
-                echo "Building Docker image..."
-                docker build --no-cache -t ${dockerImage} -f bookmyshow-app/Dockerfile bookmyshow-app
+                echo "Building Docker image version ${env.BUILD_NUMBER}..."
+                docker build --no-cache -t ${dockerImage} -t ${latestImage} -f bookmyshow-app/Dockerfile bookmyshow-app
 
                 echo "Pushing images to Docker Hub..."
                 docker push ${dockerImage}
+                docker push ${latestImage}
                 """
             }
         }
     }
 }
-
         stage('Deploy to EKS Cluster') {
             steps {
                 script {
